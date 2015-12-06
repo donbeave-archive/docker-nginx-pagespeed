@@ -29,13 +29,13 @@ WORKDIR /root/build
 RUN curl -fSL "$NGINX_URL" -o nginx.tar.gz
 RUN curl -fSL "$NGX_PAGESPEED_URL" -o ngx_pagespeed.tar.gz
 
-RUN tar -xzvf nginx.tar.gz
-RUN tar -xzvf ngx_pagespeed.tar.gz
+RUN tar --no-same-owner -xzvf nginx.tar.gz
+RUN tar --no-same-owner -xzvf ngx_pagespeed.tar.gz
 
 WORKDIR /root/build/ngx_pagespeed-$NGX_PAGESPEED_VERSION
 
 RUN curl -fSL "$PAGESPEED_URL" -o pagespeed.tar.gz
-RUN tar -xzvf pagespeed.tar.gz
+RUN tar --no-same-owner -xzvf pagespeed.tar.gz
 
 WORKDIR /root/build/nginx-$NGINX_VERSION
 
