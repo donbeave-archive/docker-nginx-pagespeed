@@ -2,7 +2,7 @@
 
 [![Build Status](https://circleci.com/gh/donbeave/docker-nginx-pagespeed.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/donbeave/docker-nginx-pagespeed)
 
-Lightweight NGINX + Google PageSpeed container (based on minimalist Debian wheezy image)
+Lightweight NGINX with Google PageSpeed module container (based on minimalist Debian wheezy image)
 
 ### Debian packages
 
