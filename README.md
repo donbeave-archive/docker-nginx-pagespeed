@@ -38,3 +38,10 @@ FROM donbeave/nginx-pagespeed:1.8.0-1
 
 ...
 ```
+
+Copyright and license
+---------------------
+
+Copyright 2015 Alexey Zhokhov under the [Apache License, Version 2.0](LICENSE). Supported by [AZ][zhokhov].
+
+[zhokhov]: http://www.zhokhov.com
