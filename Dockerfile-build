@@ -52,6 +52,8 @@ RUN ./configure \
         --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
         --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
         --http-scgi-temp-path=/var/cache/nginx/scgi_temp \
+        --user=nginx \
+        --group=nginx \
         --with-http_ssl_module \
         --with-http_realip_module \
         --with-http_addition_module \
@@ -68,17 +70,22 @@ RUN ./configure \
         --with-mail \
         --with-mail_ssl_module \
         --with-file-aio \
+        --with-http_spdy_module \
         --with-ipv6 \
         --add-module=../ngx_pagespeed-$NGX_PAGESPEED_VERSION \
         --with-cc-opt="$(pcre-config --cflags)"
 
 RUN make
 
+ADD src/nginx.conf /root/build/nginx-$NGINX_VERSION/conf/nginx.conf
+ADD src/postinstall-pak /root/build/nginx-$NGINX_VERSION/postinstall-pak
+
 RUN echo "donbeave: NGINX $NGINX_VERSION with pagespeed $NGX_PAGESPEED_VERSION module" > description-pak && \
 	checkinstall --pkgname=$PKG_NAME --pkgversion=$PKG_VERSION --pkgrelease=$PKG_RELEASE \
-        --conflicts=nginx --replaces=nginx -Dy --install=no --nodoc make -i install
+        --conflicts=nginx --replaces=nginx --provides="nginx" \
+        --requires="libpcre3,adduser" --strip=yes --stripso=yes -Dy --install=no --nodoc make -i install
 
-ADD _bintray_upload.sh /bintray_upload.sh
+ADD src/bintray_upload.sh /bintray_upload.sh
 
 RUN chmod a+x /bintray_upload.sh
 
