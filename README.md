@@ -23,3 +23,16 @@ Install nginx package:
 ```bash
 apt-get install -y ca-certificates nginx-pagespeed
 ```
+
+### Docker image
+
+https://hub.docker.com/r/donbeave/nginx-pagespeed
+
+#### How to use?
+
+In your `Dockerfile` use the following:
+```
+FROM donbeave/nginx-pagespeed:1.8.0-1
+
+...
+```
