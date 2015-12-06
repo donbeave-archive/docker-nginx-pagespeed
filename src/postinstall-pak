@@ -1,4 +1,4 @@
 #!/bin/sh
 mkdir -p /var/log/nginx
-id -u nginx &>/dev/null || adduser --system --no-create-home --disabled-login --disabled-password --group nginx
+adduser --system --no-create-home --disabled-login --disabled-password --group nginx
 chown -R nginx:nginx /var/log/nginx
