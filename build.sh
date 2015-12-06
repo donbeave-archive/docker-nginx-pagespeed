@@ -11,7 +11,7 @@ echo "> 2. Publishing deb package"
 echo ""
 docker run -e "BINTRAY_API_KEY=$BINTRAY_API_KEY" -ti donbeave/nginx-pagespeed-build
 
-sleep 10s
+sleep 60s
 echo ""
 echo ""
 echo "> 3. Building docker image"
