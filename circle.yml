@@ -1,0 +1,9 @@
+machine:
+  services:
+    - docker
+
+deployment:
+  prod:
+    branch: master
+    commands:
+      - ./build.sh
