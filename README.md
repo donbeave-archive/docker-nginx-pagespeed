@@ -1,4 +1,4 @@
-# NGINX with Google Page Speed module
+# NGINX with Google Page Speed module (Docker)
 
 [![Build Status](https://circleci.com/gh/donbeave/docker-nginx-pagespeed.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/donbeave/docker-nginx-pagespeed)
 [![Analytics](https://ga-beacon.appspot.com/UA-71075299-1/docker-nginx-pagespeed/main-page)](https://github.com/igrigorik/ga-beacon)
