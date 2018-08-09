@@ -1,15 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
+export TERM="dumb"
 
-NGINX_VERSION="1.15.2"
-NPS_VERSION="1.13.35.2-stable"
-PSOL_VERSION="1.13.35.2"
-VERSION="${NGINX_VERSION}"
+printf "\n> \e[93m\033[1mBuild\e[0m\n\n"
 
-echo "NGINX_VERSION=${NGINX_VERSION}"
-echo "NPS_VERSION=${NPS_VERSION}"
-echo "PSOL_VERSION=${PSOL_VERSION}"
+set -e
 
-set -ex
+ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+cd ${ABSOLUTE_PATH}
+
+. ./env.sh;
 
 docker build \
              -t donbeave/nginx-pagespeed:${VERSION} \
