@@ -1,30 +1,72 @@
-FROM buildpack-deps:wheezy-curl
+ARG NGINX_VERSION
+
+FROM nginx:${NGINX_VERSION}-alpine
+
+ARG NPS_VERSION
+ARG PSOL_VERSION
 
 MAINTAINER Alexey Zhokhov <alexey@zhokhov.com>
 
-# Default to UTF-8 file.encoding
-ENV LANG C.UTF-8
-
-# Set the env variable DEBIAN_FRONTEND to noninteractive
-ENV DEBIAN_FRONTEND noninteractive
-
-ENV NGINX_VERSION 1.8.0-1
-
-RUN curl 'https://bintray.com/user/downloadSubjectPublicKey?username=bintray' | apt-key add - 
-RUN echo "deb http://dl.bintray.com/donbeave/deb wheezy main" >> /etc/apt/sources.list
-
-RUN apt-get update && \
-    apt-get install -y ca-certificates nginx-pagespeed=${NGINX_VERSION} && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -p /var/log/nginx
-
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log
-RUN ln -sf /dev/stderr /var/log/nginx/error.log
-
-VOLUME ["/var/cache/nginx"]
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]
+RUN set -ex \
+	&& mkdir -p /usr/src \
+    && cd /usr/src \
+    && apk add --no-cache \
+    		   tar \
+    		   gzip \
+    && GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
+	&& apk add --no-cache --virtual .build-deps \
+               apr-dev \
+               apr-util-dev \
+               build-base \
+               ca-certificates \
+               gd-dev \
+               geoip-dev \
+               git \
+               gnupg \
+               icu-dev \
+               libjpeg-turbo-dev \
+               libpng-dev \
+               libxslt-dev \
+               linux-headers \
+               libressl-dev \
+               pcre-dev \
+               tar \
+               zlib-dev \
+	&& wget https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -O nginx.tar.gz \
+	&& wget https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc -O nginx.tar.gz.asc \
+	&& export GNUPGHOME="$(mktemp -d)" \
+	&& found=''; \
+	for server in \
+		ha.pool.sks-keyservers.net \
+		hkp://keyserver.ubuntu.com:80 \
+		hkp://p80.pool.sks-keyservers.net:80 \
+		pgp.mit.edu \
+	; do \
+		echo "Fetching GPG key $GPG_KEYS from $server"; \
+		gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
+	done; \
+	test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
+	gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
+	&& rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
+	&& tar -zxC /usr/src -f nginx.tar.gz \
+	&& rm nginx.tar.gz \
+    && wget https://github.com/apache/incubator-pagespeed-ngx/archive/v${NPS_VERSION}.zip -O nps.zip \
+	&& unzip nps.zip \
+	&& rm nps.zip \
+    && nps_dir=$(find . -name "*pagespeed-ngx-${NPS_VERSION}" -type d) \
+    && cd "$nps_dir" \
+    && wget https://github.com/donbeave/docker-nginx-pagespeed-psol/releases/download/v${PSOL_VERSION}-nginx-${NGINX_VERSION}-alpine/psol.tar.gz -O psol.tar.gz \
+    && tar -xzf psol.tar.gz \
+    && rm psol.tar.gz \
+    && cd /usr/src/nginx-$NGINX_VERSION \
+    && uname -a \
+    && ./configure --add-dynamic-module=../incubator-pagespeed-ngx-${NPS_VERSION} \
+                   --modules-path=/usr/lib/nginx/modules \
+                   --with-compat \
+                   --with-ld-opt="-Wl,-z,relro,--start-group -lapr-1 -laprutil-1 -licudata -licuuc -lpng -lturbojpeg -ljpeg" \
+    && make modules \
+    && cp objs/ngx_pagespeed.so /usr/lib/nginx/modules \
+    && rm -rf /usr/src/* \
+    && apk del .build-deps \
+    && apk del tar \
+               gzip
