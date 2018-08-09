@@ -69,4 +69,12 @@ RUN set -ex \
     && rm -rf /usr/src/* \
     && apk del .build-deps \
     && apk del tar \
-               gzip
+               gzip \
+    && apk add --no-cache \
+               --update \
+               g++ \
+               apr \
+               apr-util \
+               icu-libs
+
+COPY nginx.conf /etc/nginx/nginx.conf
